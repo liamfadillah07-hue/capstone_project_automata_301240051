@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Automata Lab — Capstone Teori Bahasa dan Otomata</title>
+<meta name="description" content="Aplikasi web interaktif untuk FSA, Regular Expression, PDA/CFG, dan Hierarki Chomsky/CNF." />
+<link rel="stylesheet" href="src/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark">Σ*</span>
+      <span class="brand-name">Automata&nbsp;Lab</span>
+      <span class="brand-sub">Teori Bahasa &amp; Otomata</span>
+    </div>
+    <div class="identity">
+      Capstone Project Individu · Semester IV — 2025/2026 Genap<br>
+      <strong>[Nama Mahasiswa] · [NIM]</strong>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">// empat modul, satu mesin evaluasi</div>
+  <h1>Merancang bahasa formal dari <span class="accent">state</span> ke <span class="accent">grammar</span>, langkah demi langkah.</h1>
+  <p>Simulator FSA (DFA/NFA/Moore/Mealy), konversi Regular Expression ↔ NFA/DFA, penurunan CFG dengan pohon
+  penurunan &amp; jejak PDA, serta konversi CFG sembarang menjadi Chomsky Normal Form — lengkap dengan visualisasi
+  dan jejak eksekusi tiap langkah.</p>
+  <div class="hero-grammar">S <span class="kw">-&gt;</span> <span class="nt">A</span> <span class="nt">B</span> | <span class="kw">ε</span>
+A <span class="kw">-&gt;</span> a <span class="nt">A</span> | a
+B <span class="kw">-&gt;</span> b <span class="nt">B</span> | b</div>
+</section>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" data-target="panel-fsa"><span class="tab-num">01</span> Finite State Automata</button>
+  <button class="tab-btn" data-target="panel-regex"><span class="tab-num">02</span> Regular Expression</button>
+  <button class="tab-btn" data-target="panel-cfg"><span class="tab-num">03</span> PDA &amp; CFG</button>
+  <button class="tab-btn" data-target="panel-cnf"><span class="tab-num">04</span> Hierarki Chomsky &amp; CNF</button>
+</nav>
+
+<main>
+
+  <!-- ============ MODULE 1: FSA ============ -->
+  <section id="panel-fsa" class="panel active">
+    <div class="panel-head">
+      <h2>01 · Finite State Automata</h2>
+      <p>Definisikan DFA/NFA lewat teks terstruktur, jalankan string untuk melihat jejak transisi, dan konversikan NFA menjadi DFA ekuivalen (subset construction). Tersedia juga evaluator Moore &amp; Mealy Machine.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Definisi Mesin</h3>
+        <p class="hint">Format: <code>states</code>, <code>alphabet</code>, <code>start</code>, <code>final</code>, lalu blok <code>transitions:</code> berisi <em>state,simbol,tujuan</em> per baris. Gunakan <code>e</code> untuk ε, dan pisahkan beberapa tujuan dengan <code>|</code> untuk NFA.</p>
+        <textarea id="fsa-def" spellcheck="false"></textarea>
+        <div class="btn-row">
+          <button class="btn" id="fsa-load">Muat &amp; Gambar Diagram</button>
+          <button class="btn secondary" id="fsa-convert">Konversi NFA → DFA</button>
+        </div>
+        <span id="fsa-type-badge" class="badge" style="margin-top:14px;display:inline-block;"></span>
+        <div id="fsa-error" class="error-box hidden"></div>
+      </div>
+
+      <div class="card">
+        <h3>Uji String</h3>
+        <label class="field-label" for="fsa-input">String input</label>
+        <input type="text" id="fsa-input" value="0110" />
+        <div class="btn-row"><button class="btn" id="fsa-simulate">Jalankan Simulasi</button></div>
+        <div id="fsa-result"></div>
+        <div id="fsa-trace"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Diagram State</h3>
+      <div id="fsa-diagram" class="diagram-box"></div>
+    </div>
+
+    <div class="card">
+      <h3>Tabel Transisi</h3>
+      <div id="fsa-table"></div>
+    </div>
+
+    <div id="fsa-nfa2dfa-panel" class="card hidden">
+      <h3>Hasil Konversi NFA → DFA</h3>
+      <p class="hint">Setiap state DFA adalah himpunan bagian (subset) dari state NFA asal:</p>
+      <pre class="mono grammar-box" id="fsa-nfa2dfa-map"></pre>
+      <div id="fsa-nfa2dfa-diagram" class="diagram-box" style="margin-top:12px;"></div>
+      <div id="fsa-nfa2dfa-table" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Moore Machine</h3>
+        <p class="hint">Format state: <code>nama/output</code>. Output dibaca setiap kali memasuki sebuah state.</p>
+        <textarea id="moore-def" spellcheck="false"></textarea>
+        <label class="field-label" for="moore-input">String input</label>
+        <input type="text" id="moore-input" value="0101" />
+        <div class="btn-row"><button class="btn" id="moore-run">Jalankan Moore</button></div>
+        <div id="moore-error" class="error-box hidden"></div>
+        <div id="moore-output" class="result accepted"></div>
+        <div id="moore-trace"></div>
+      </div>
+      <div class="card">
+        <h3>Mealy Machine</h3>
+        <p class="hint">Baris transisi: <code>dari,simbol,tujuan,output</code>. Output dihasilkan pada transisi, bukan state.</p>
+        <textarea id="mealy-def" spellcheck="false"></textarea>
+        <label class="field-label" for="mealy-input">String input</label>
+        <input type="text" id="mealy-input" value="0101" />
+        <div class="btn-row"><button class="btn" id="mealy-run">Jalankan Mealy</button></div>
+        <div id="mealy-error" class="error-box hidden"></div>
+        <div id="mealy-output" class="result accepted"></div>
+        <div id="mealy-trace"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2: REGEX ============ -->
+  <section id="panel-regex" class="panel">
+    <div class="panel-head">
+      <h2>02 · Regular Expression</h2>
+      <p>Tulis sebuah Regular Expression, konversikan menjadi NFA lewat konstruksi Thompson, uji kecocokan string, konversikan ke DFA, dan lihat grammar reguler (Tipe 3 / right-linear) yang setara.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Ekspresi Reguler</h3>
+        <p class="hint">Operator didukung: <code>|</code> union, <code>*</code> Kleene star, <code>+</code> satu-atau-lebih, <code>?</code> opsional, <code>()</code> grouping, dan penulisan berdampingan untuk konkatenasi. Contoh: <code>(a|b)*abb</code></p>
+        <input type="text" id="regex-input" value="(a|b)*abb" />
+        <div class="btn-row">
+          <button class="btn" id="regex-build">Bangun NFA</button>
+          <button class="btn secondary" id="regex-to-dfa">Konversi ke DFA</button>
+        </div>
+        <div id="regex-error" class="error-box hidden"></div>
+      </div>
+      <div class="card">
+        <h3>Uji String terhadap Pola</h3>
+        <label class="field-label" for="regex-test-input">String input</label>
+        <input type="text" id="regex-test-input" value="aababb" />
+        <div class="btn-row"><button class="btn" id="regex-test">Uji Kecocokan</button></div>
+        <div id="regex-result"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>NFA hasil Konstruksi Thompson</h3>
+      <div id="regex-nfa-diagram" class="diagram-box"></div>
+    </div>
+
+    <div id="regex-dfa-panel" class="card hidden">
+      <h3>DFA Ekuivalen</h3>
+      <div id="regex-dfa-diagram" class="diagram-box"></div>
+    </div>
+
+    <div class="card">
+      <h3>Grammar Reguler (Tipe 3) yang Setara</h3>
+      <p class="hint">Satu nonterminal per state NFA. Aturan produksi: <code>&lt;state&gt; → simbol &lt;tujuan&gt;</code>, dan <code>&lt;state&gt; → ε</code> jika state tersebut final.</p>
+      <pre class="mono grammar-box" id="regex-grammar"></pre>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 3: CFG / PDA ============ -->
+  <section id="panel-cfg" class="panel">
+    <div class="panel-head">
+      <h2>03 · Pushdown Automata &amp; CFG</h2>
+      <p>Definisikan Context-Free Grammar, cari derivasi leftmost untuk sebuah string, lihat pohon penurunan secara grafis, dan ikuti jejak konfigurasi stack Pushdown Automaton standar hasil konstruksi dari CFG tersebut.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Definisi CFG</h3>
+        <p class="hint">Satu baris per nonterminal: <code>S -&gt; a S b | ab</code>. Gunakan <code>eps</code> untuk ε, dan <code>&lt;Nama&gt;</code> untuk nonterminal bernama lebih dari satu huruf.</p>
+        <textarea id="cfg-def" spellcheck="false"></textarea>
+        <label class="field-label" for="cfg-input" style="margin-top:12px;">String yang diuji</label>
+        <input type="text" id="cfg-input" value="aabb" />
+        <div class="btn-row"><button class="btn" id="cfg-derive">Cari Derivasi &amp; Simulasikan PDA</button></div>
+        <div id="cfg-error" class="error-box hidden"></div>
+      </div>
+      <div class="card">
+        <h3>Hasil</h3>
+        <div id="cfg-result"></div>
+        <h3 style="margin-top:18px;">Langkah Derivasi Leftmost</h3>
+        <div id="cfg-derivation-steps"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Pohon Penurunan (Parse Tree)</h3>
+      <div id="cfg-tree" class="diagram-box"></div>
+    </div>
+
+    <div class="card">
+      <h3>Jejak Konfigurasi Pushdown Automaton</h3>
+      <p class="hint">PDA standar hasil konstruksi dari CFG: satu state, penerimaan dengan stack kosong (empty-stack acceptance).</p>
+      <div id="cfg-pda-trace"></div>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 4: CHOMSKY / CNF ============ -->
+  <section id="panel-cnf" class="panel">
+    <div class="panel-head">
+      <h2>04 · Hierarki Chomsky &amp; Chomsky Normal Form</h2>
+      <p>Konversikan CFG sembarang menjadi Chomsky Normal Form melalui lima tahap standar: START, DEL (eliminasi ε), UNIT (eliminasi produksi unit), TERM (isolasi terminal), dan BIN (binarisasi).</p>
+    </div>
+
+    <div class="card">
+      <h3>Hierarki Chomsky</h3>
+      <div class="chomsky-hierarchy">
+        <div class="chomsky-ring t0"><h4>Tipe 0 — Unrestricted Grammar</h4><p>Diterima oleh Turing Machine. Tidak ada batasan bentuk produksi.</p></div>
+        <div class="chomsky-ring t1"><h4>Tipe 1 — Context-Sensitive Grammar</h4><p>Diterima oleh Linear Bounded Automaton. Panjang ruas kanan ≥ ruas kiri.</p></div>
+        <div class="chomsky-ring t2"><h4>Tipe 2 — Context-Free Grammar</h4><p>Diterima oleh Pushdown Automaton. Ruas kiri satu nonterminal tunggal. CNF adalah bentuk normal dari kelas ini.</p></div>
+        <div class="chomsky-ring t3"><h4>Tipe 3 — Regular Grammar</h4><p>Diterima oleh Finite State Automaton. Produksi berbentuk A → aB atau A → a (right-linear).</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Definisi CFG</h3>
+      <p class="hint">Contoh sudah tersedia. Gunakan <code>eps</code> untuk ε.</p>
+      <textarea id="cnf-def" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button class="btn" id="cnf-convert">Konversi ke CNF</button>
+        <button class="btn secondary" id="cnf-example">Muat Contoh Lain</button>
+      </div>
+      <div id="cnf-error" class="error-box hidden"></div>
+    </div>
+
+    <div class="card">
+      <h3>Langkah Transformasi</h3>
+      <div id="cnf-steps"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Automata Lab · Capstone Project Individu — Teori Bahasa dan Otomata · Semester IV 2025/2026 Genap<br>
+  Dibangun dengan HTML/CSS/JavaScript murni, dideploy melalui GitHub Pages pada domain .my.id.
+</footer>
+
+<script src="src/js/grammar.js"></script>
+<script src="src/js/fsa.js"></script>
+<script src="src/js/regexEngine.js"></script>
+<script src="src/js/cfgEngine.js"></script>
+<script src="src/js/chomsky.js"></script>
+<script src="src/js/svg.js"></script>
+<script src="src/js/app.js"></script>
+</body>
+</html>
